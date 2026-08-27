@@ -1,4 +1,44 @@
-const KEY = "bibliotecaEstudosLucianoV1";
+const API_URL = "https://script.google.com/macros/s/AKfycbxTRku4QGf6PvIZ0P8Rry1X8uPKtl0Er90eDVu1lwC-GM9RdTh2tS_V9s92Zfso5Gj9/exec";
+
+let senhaSync = sessionStorage.getItem("bibliotecaSenhaSync") || "";
+let timerSync = null;
+
+async function chamarApi(acao, dados = null) {
+  if (!senhaSync) {
+    senhaSync = prompt("Digite a senha da biblioteca:") || "";
+
+    if (!senhaSync) {
+      throw new Error("Senha não informada.");
+    }
+
+    sessionStorage.setItem("bibliotecaSenhaSync", senhaSync);
+  }
+
+  const resposta = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify({
+      acao,
+      senha: senhaSync,
+      dados
+    })
+  });
+
+  const resultado = await resposta.json();
+
+  if (!resultado.ok) {
+    if (resultado.erro === "Senha incorreta.") {
+      sessionStorage.removeItem("bibliotecaSenhaSync");
+      senhaSync = "";
+    }
+
+    throw new Error(resultado.erro || "Erro de sincronização.");
+  }
+
+  return resultado;
+}const KEY = "bibliotecaEstudosLucianoV1";
 const $ = id => document.getElementById(id);
 const uid = () => crypto.randomUUID();
 
@@ -72,6 +112,43 @@ let categoria = "todas";
 
 function salvar() {
   localStorage.setItem(KEY, JSON.stringify(state));
+
+  clearTimeout(timerSync);
+
+  timerSync = setTimeout(async () => {
+    try {
+      await chamarApi("salvar", state);
+      aviso("Sincronizado.");
+    } catch (erro) {
+      console.error(erro);
+      aviso("Salvo neste navegador; sincronização pendente.");
+    }
+  }, 600);
+}
+async function carregarNuvem() {
+  try {
+    const resultado = await chamarApi("carregar");
+
+    if (!resultado.dados) {
+      throw new Error("Dados da nuvem não encontrados.");
+    }
+
+    state = resultado.dados;
+
+    if (!Array.isArray(state.materials)) state.materials = [];
+    if (!Array.isArray(state.notes)) state.notes = [];
+
+    localStorage.setItem(KEY, JSON.stringify(state));
+
+    document.documentElement.dataset.theme =
+      state.theme || "light";
+
+    render();
+    aviso("Biblioteca sincronizada.");
+  } catch (erro) {
+    console.error(erro);
+    aviso("Usando dados deste navegador.");
+  }
 }
 
 function limpar(texto = "") {
@@ -533,6 +610,7 @@ $("importInput").onchange = async e => {
       state.theme || "light";
 
     render();
+    carregarNuvem();
     aviso("Backup importado.");
   } catch {
     alert("Este arquivo não é um backup válido.");
