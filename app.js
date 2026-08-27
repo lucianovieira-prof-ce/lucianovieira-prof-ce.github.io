@@ -610,7 +610,7 @@ $("importInput").onchange = async e => {
       state.theme || "light";
 
     render();
-    carregarNuvem();
+  
     aviso("Backup importado.");
   } catch {
     alert("Este arquivo não é um backup válido.");
@@ -637,3 +637,4 @@ document.documentElement.dataset.theme =
   state.theme || "light";
 
 render();
+carregarNuvem();
