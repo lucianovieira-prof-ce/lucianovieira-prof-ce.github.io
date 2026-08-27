@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Espaço pessoal de estudos: legislação, materiais, anotações e revisão." />
+  <title>Biblioteca de Estudos - Luciano Vieira</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand-mark" aria-hidden="true">B</div>
+      <div>
+        <p class="eyebrow">BIBLIOTECA PESSOAL</p>
+        <h1>Biblioteca de Estudos - Luciano Vieira</h1>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="themeBtn" class="icon-btn" type="button" aria-label="Alternar tema" title="Alternar tema">◐</button>
+      <button id="exportBtn" class="btn secondary" type="button">Exportar backup</button>
+      <label class="btn secondary file-label" for="importInput">Importar backup</label>
+      <input id="importInput" class="sr-only" type="file" accept="application/json,.json" />
+      <button id="addBtn" class="btn primary" type="button">+ Adicionar material</button>
+    </div>
+  </header>
+
+  <main id="conteudo" class="layout">
+    <aside class="sidebar" aria-label="Navegação e filtros">
+      <nav>
+        <button class="nav-item active" data-view="biblioteca" type="button"><span>▦</span> Biblioteca</button>
+        <button class="nav-item" data-view="anotacoes" type="button"><span>✎</span> Anotações</button>
+        <button class="nav-item" data-view="favoritos" type="button"><span>★</span> Favoritos</button>
+      </nav>
+
+      <div class="sidebar-section">
+        <p class="sidebar-title">CATEGORIAS</p>
+        <div id="categoryList" class="category-list"></div>
+      </div>
+
+      <div class="sidebar-note">
+        <strong>Privacidade</strong>
+        <p>Seus dados ficam salvos neste navegador. Use o backup para levar suas anotações a outro dispositivo.</p>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">PAINEL DE ESTUDO</p>
+          <h2 id="viewTitle">Biblioteca</h2>
+          <p id="viewSubtitle">Centralize legislação, referências e materiais de estudo em um só lugar.</p>
+        </div>
+        <div class="stats" aria-label="Resumo da biblioteca">
+          <div class="stat"><strong id="statMaterials">0</strong><span>materiais</span></div>
+          <div class="stat"><strong id="statNotes">0</strong><span>anotações</span></div>
+          <div class="stat"><strong id="statFavorites">0</strong><span>favoritos</span></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <label class="search-wrap" for="searchInput">
+          <span aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Buscar por título, tema, número da lei ou palavra-chave..." autocomplete="off" />
+        </label>
+        <select id="statusFilter" aria-label="Filtrar por status">
+          <option value="todos">Todos os status</option>
+          <option value="nao-iniciado">Não iniciado</option>
+          <option value="revisando">Revisando</option>
+          <option value="dominado">Dominado</option>
+        </select>
+      </div>
+
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon" aria-hidden="true">⌕</div>
+        <h3>Nenhum item encontrado</h3>
+        <p>Tente alterar os filtros ou adicionar um novo material.</p>
+      </div>
+
+      <div id="cardGrid" class="card-grid" aria-live="polite"></div>
+
+      <section id="notesSection" class="notes-section hidden">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CADERNO DIGITAL</p>
+            <h3>Anotações gerais</h3>
+          </div>
+          <button id="newNoteBtn" class="btn primary" type="button">+ Nova anotação</button>
+        </div>
+        <div id="notesGrid" class="notes-grid"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="materialDialog" class="dialog">
+    <form id="materialForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">BIBLIOTECA</p>
+          <h2 id="materialDialogTitle">Adicionar material</h2>
+        </div>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fechar">×</button>
+      </div>
+      <input id="materialId" type="hidden" />
+      <div class="form-grid">
+        <label>Título
+          <input id="titleInput" required maxlength="120" placeholder="Ex.: Constituição Federal de 1988" />
+        </label>
+        <label>Categoria
+          <input id="categoryInput" required maxlength="40" list="categoryOptions" placeholder="Ex.: Legislação" />
+          <datalist id="categoryOptions"></datalist>
+        </label>
+        <label class="full">Descrição
+          <textarea id="descriptionInput" rows="3" maxlength="280" placeholder="Resumo curto do que este material contém."></textarea>
+        </label>
+        <label class="full">Link
+          <input id="urlInput" type="url" placeholder="https://..." />
+        </label>
+        <label>Fonte
+          <input id="sourceInput" maxlength="80" placeholder="Ex.: Planalto" />
+        </label>
+        <label>Status
+          <select id="statusInput">
+            <option value="nao-iniciado">Não iniciado</option>
+            <option value="revisando">Revisando</option>
+            <option value="dominado">Dominado</option>
+          </select>
+        </label>
+        <label class="full">Palavras-chave
+          <input id="tagsInput" maxlength="180" placeholder="educação, concurso, direitos fundamentais" />
+        </label>
+        <label class="full">Sua anotação sobre este material
+          <textarea id="materialNoteInput" rows="5" maxlength="4000" placeholder="Registre artigos importantes, pegadinhas de banca, dúvidas e revisões."></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn secondary close-dialog" type="button">Cancelar</button>
+        <button class="btn primary" value="default" type="submit">Salvar material</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="noteDialog" class="dialog">
+    <form id="noteForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">CADERNO DIGITAL</p>
+          <h2 id="noteDialogTitle">Nova anotação</h2>
+        </div>
+        <button class="icon-btn close-note-dialog" type="button" aria-label="Fechar">×</button>
+      </div>
+      <input id="noteId" type="hidden" />
+      <div class="form-grid">
+        <label class="full">Título
+          <input id="noteTitleInput" required maxlength="120" placeholder="Ex.: Revisão — Direitos fundamentais" />
+        </label>
+        <label class="full">Conteúdo
+          <textarea id="noteBodyInput" required rows="12" maxlength="10000" placeholder="Escreva sua anotação..."></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn secondary close-note-dialog" type="button">Cancelar</button>
+        <button class="btn primary" value="default" type="submit">Salvar anotação</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
